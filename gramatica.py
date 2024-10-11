@@ -74,12 +74,14 @@ class Gramatica:
                     elif value.isupper(): #Aca vamos a tener que hacer la consideracion de que lambda este en los first, por lo que vamos a tener que buscar los firsts del siguiente
                         firsts =  tuple(firsts_por_nt[value])
                         firsts_por_regla[antecedente].append(firsts)
-                        if 'lambda' in firsts and value == consecuente[-1]:  #Hay que hacer este if para que tenga 
+                        if 'lambda' in firsts and value != consecuente[-1]:  #Hay que hacer este if para que tenga 
                             continue
                         else:
-                            pass
+                            break
                     elif value == 'lambda':
                         firsts_por_regla[antecedente].append(tuple(value))
+                        break
+        return firsts_por_regla
 
 
 

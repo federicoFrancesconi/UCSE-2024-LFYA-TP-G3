@@ -192,5 +192,12 @@ class Gramatica:
     
     # Funcion para imprimir la gramatica
     def __str__(self):
-        return ""
+        resultado = ""
+        for antecedente in self.producciones:
+            for (consecuente, firsts_regla) in self.firsts[antecedente]:
+                follows = self.follows[antecedente]
+                # Tenemos que filtrar por el primer select encontrado porque la busqueda nos arroja una lista
+                select_regla = [select_regla for regla, select_regla in self.select[antecedente] if regla == consecuente][0]
+                resultado = resultado + f"{antecedente} : {' '.join(consecuente)} [{', '.join(firsts_regla)}] [{', '.join(follows)}] [{', '.join(select_regla)}]\n"
+        return resultado
     

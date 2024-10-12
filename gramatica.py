@@ -166,8 +166,6 @@ def generar_select(gramatica_procesada, firsts, follows):
         for consecuente, firsts_consecuente in firsts[antecedente]:
             #Por ahora los select de la regla van a ser los firsts del primer consecuente
             select_por_regla = set(firsts_consecuente)
-            # TODO: mover esto dentro del if (solo se va a hacer si tiene lambda)
-            select_por_regla.discard('lambda')
             # Si tenes lambda, te llevas tus Follows en lugar de lambda
             if 'lambda' in firsts_consecuente:
                 select_por_regla.update(follows[antecedente])

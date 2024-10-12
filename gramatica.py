@@ -159,32 +159,40 @@ def generar_follows(gramatica_procesada, firsts_por_nt):
                                 cambios = True
     return follows
 
-def generar_select(gramatica_procesada, firsts_por_regla, follows_por_nt):
+def generar_select(gramatica_procesada, firsts, follows):
     # La estructura va a ser un defaultdict {A: [(consecuente, select), (consecuente, select)]}
     select = defaultdict(list)
     for antecedente in gramatica_procesada:
-        for consecuente, firsts_consecuente in firsts_por_regla[antecedente]:
+        for consecuente, firsts_consecuente in firsts[antecedente]:
             #Por ahora los select de la regla van a ser los firsts del primer consecuente
             select_por_regla = set(firsts_consecuente)
             # TODO: mover esto dentro del if (solo se va a hacer si tiene lambda)
             select_por_regla.discard('lambda')
             # Si tenes lambda, te llevas tus Follows en lugar de lambda
             if 'lambda' in firsts_consecuente:
-                select_por_regla.update(follows_por_nt[antecedente])
+                select_por_regla.update(follows[antecedente])
             select[antecedente].append((consecuente, select_por_regla))
     return select
 
 class Gramatica:
     esLL1 = False
+    producciones = defaultdict(list)
+    firsts = defaultdict(list)
+    follows = defaultdict(set)
+    select = defaultdict(list)
                         
     # Esta función debe implementar la lógica suficiente para que al imprimir en pantalla una instancia de este objeto
     # a la que se le haya invocado dicho método previamente se muestre la gramática de la siguiente manera:
     # por cada regla o producción mostrar dicha regla y a continuación los First, Follows y Selects correspondientes.
     def setear(self, gramatica):
+        self.producciones = generar_producciones(gramatica)
+        
+        self.firsts, firsts_por_nt = generar_firsts(self.producciones)
         
         # TODO: si no tengo lambda en ningun first, no tiene sentido que calcule los follows
-
-        return
+        self.follows = generar_follows(self.producciones, firsts_por_nt)
+        
+        self.select = generar_select(self.producciones, self.firsts, self.follows)
     
     # Devuelve true en caso de que la cadena se derive de la gramática y false en caso contrario. 
     def evaluar_cadena(self, cadena):

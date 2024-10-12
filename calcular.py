@@ -101,18 +101,14 @@ def generar_follows(gramatica_procesada, firsts_por_nt):
     return follows
 
 def generar_select(gramatica_procesada, firsts_por_regla, follows_por_nt):
-    select = defaultdict(list)
-
+    select = defaultdict(list) # La estructura va a ser un defaultdict {A: [select],[select],[select]}
     for antecedente in gramatica_procesada:
-        for consecuente, first_consecuente in firsts_por_regla[antecedente]:
-            select_regla = set(first_consecuente)  # Comienza con el conjunto de firsts
-            select_regla.discard('lambda')  # Asegurarse de que lambda NO esté en el select
-            
-            if 'lambda' in first_consecuente:
-                select_regla.update(follows_por_nt[antecedente])  # Agrega los follows si lambda está en los firsts
-            
-            select[antecedente].append((consecuente, select_regla))
-    
+        for consecuente, firsts_consecuente in firsts_por_regla[antecedente]: #Recorro el dict que contiene las reglas (por cada antecedente, analizamos sus firsts)
+            select_por_regla = set(firsts_consecuente)  #Por ahora los select de la regla van a ser los firsts del primer consecuente
+            select_por_regla.discard('lambda')  # Descartamos lambda por ahora
+            if 'lambda' in firsts_consecuente:
+                select_por_regla.update(follows_por_nt[antecedente])  # Si tenes lambda, te llevas tus follow en lugar de lambda
+            select[antecedente].append((consecuente, select_por_regla))  # Esto va a ser un defaultdict {A: [(consecuente, select), (consecuente, select)]}
     return select
 
 

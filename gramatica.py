@@ -1,4 +1,7 @@
 from collections import defaultdict
+# Usamos defaultdict para:
+# * Generar keys automáticamente si agregamos y aún no están en el diccionario
+# * Poder trabajar con list y set
 
 class Gramatica:
     esLL1 = False

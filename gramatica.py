@@ -183,7 +183,7 @@ def generar_select(gramatica_procesada, firsts, follows):
 
 
 class Gramatica:
-    esLL1 = False
+    esLL1 = True
     producciones = defaultdict(list)
     firsts = defaultdict(list)
     follows = defaultdict(set)
@@ -211,9 +211,43 @@ class Gramatica:
                     return
                 select_simbolos.update(selects_produccion)
 
-    # Devuelve true en caso de que la cadena se derive de la gramática y false en caso contrario.
+    # Devuelve true en caso de que la cadena se derive de la gramática y false en caso contrario. 
     def evaluar_cadena(self, cadena):
-        return
+        # Si la gramática no es LL1, no puedo evaluar la cadena
+        if self.esLL1 is False:
+            return None
+        
+        # Genero una tabla donde los terminales sean las columnas y los no terminales las filas
+        tabla = {}
+        for antecedente in self.producciones:
+            for consecuente, select in self.select[antecedente]:
+                for simbolo in select:
+                    # Relleno las celdas con los consecuentes de las reglas donde el NT sea el antecedente y el terminal este en los selects
+                    tabla[(antecedente, simbolo)] = consecuente
+
+        no_terminales = list(self.producciones.keys())
+        distinguido = no_terminales[0]
+        stack = [distinguido]
+
+        indice = 0
+        look = cadena[indice]
+        while stack:
+            s = stack.pop()
+            if s in no_terminales:
+                l = tabla[(s, look)]
+                l = l[::-1]
+                stack.extend(l)
+            elif s == look:
+                indice += 1
+                if indice < len(cadena):
+                    look = cadena[indice]
+                else:
+                    break
+            else:
+                print('Error')
+
+        # Si look termina en '$' la cadena pertenece a la gramática, sino no
+        return look == '$'
 
     # Funcion para imprimir la gramatica
     def __str__(self):

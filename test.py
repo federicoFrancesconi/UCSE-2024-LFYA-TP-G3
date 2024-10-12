@@ -75,11 +75,11 @@ class TestGramatica:
     @pytest.mark.parametrize("descripcion, gramatica_entrada, cadena, pertenece", (
         ("LL(1) sin recursión a derecha y sin lambda",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f",
-            "dde",
+            "dde$",
             True),
         ("LL(1) sin recursión a derecha y sin lambda",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f",
-            "ddf",
+            "ddf$",
             False),
 
         # ("NO LL(1) sin recursión a derecha y sin lambda",
@@ -93,11 +93,11 @@ class TestGramatica:
 
         ("LL(1) con recursión a derecha", 
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : j B",
-            "djjjde",
+            "djjjde$",
             True),
         ("LL(1) con recursión a derecha", 
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : j B",
-            "djjjdf",
+            "djjjdf$",
             False),
 
         # ("NO LL(1) con recursión a derecha",
@@ -111,11 +111,11 @@ class TestGramatica:
 
         ("LL(1) con lambda en sus derivaciones",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : lambda",
-            "dj",
+            "dj$",
             True),
         ("LL(1) con lambda en sus derivaciones",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : lambda",
-            "de",
+            "de$",
             False),
 
         # ("NO LL(1) con lambda en sus derivaciones",
@@ -129,11 +129,11 @@ class TestGramatica:
 
         ("LL(1) con reglas innecesarias",
             "A : b c \n A : a b \n A : d B \n A : A \n B : d e \n B : f",
-            "dde",
+            "dde$",
             True),
         ("LL(1) con reglas innecesarias",
             "A : b c \n A : a b \n A : d B \n A : A \n B : d e \n B : f",
-            "ddf",
+            "ddf$",
             False),
 
         # ("NO LL(1) con reglas innecesarias",
@@ -147,11 +147,11 @@ class TestGramatica:
 
         ("LL(1) con símbolos inaccesibles desde el axioma",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n C : j k",
-            "bc",
+            "bc$",
             True),
         ("LL(1) con símbolos inaccesibles desde el axioma",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n C : j k",
-            "be",
+            "be$",
             False),
 
         # ("NO LL(1) con símbolos inaccesibles desde el axioma",
@@ -165,11 +165,11 @@ class TestGramatica:
 
         ("LL(1) con no terminales no generativos",
             "A : d A \n A : b B \n A : a \n B : b B",    
-            "dddddddda",
+            "dddddddda$",
             True),
         ("LL(1) con no terminales no generativos",
             "A : d A \n A : b B \n A : a \n B : b B",    
-            "ad",
+            "ad$",
             False),
 
         # ("NO LL(1) con no terminales no generativos",
@@ -192,11 +192,11 @@ class TestGramatica:
 
         ("Terminales y NO terminales con más de una letra",
             "Axiom : barb c \n Axiom : a barb \n Axiom : d B \n B : d e \n B : fuzz",
-            "d fuzz",
+            "d fuzz$",
             True),
         ("Terminales y NO terminales con más de una letra",
             "Axiom : barb c \n Axiom : a barb \n Axiom : d B \n B : d e \n B : fuzz",
-            "barb d",
+            "barb d$",
             False),
     ))
     def test_evaluar_cadena(self, descripcion, gramatica_entrada, cadena, pertenece):

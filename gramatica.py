@@ -70,7 +70,6 @@ def generar_firsts(gramatica_procesada):
     for antecedente in gramatica_procesada:
         for consecuente in gramatica_procesada[antecedente]:
             for simbolo in consecuente:
-                
                 if es_terminal(simbolo):
                     firsts_por_nt[antecedente].add(simbolo)
                     break
@@ -86,35 +85,26 @@ def generar_firsts(gramatica_procesada):
     # Generamos los Firsts por regla
     for antecedente in gramatica_procesada:
         for consecuente in gramatica_procesada[antecedente]:
+            firsts = set()
             for simbolo in consecuente:
                 if es_terminal(simbolo):
                     # TODO: por qué usa corchetes para simbolo?
                     # Regla 1: Si tengo una regla que deriva en un único terminal, ese terminal está en el conjunto de los firsts
                     # Regla 2.a: Si tengo una regla donde hay un terminal seguido de algo, ese terminal esta en el conjunto de los firsts
-                    firsts_por_regla[antecedente].append((tuple(consecuente), {simbolo}))
+                    firsts.add(simbolo)
                     break
                 elif es_no_terminal(simbolo):
                     # Regla 2.b: Los símbolos derivados de un NT que deriva de un NT, son del firsts del primer NT
                     # Por dicha regla agregamos los Firsts del NT, exceptuando 'lambda' (aún no sabemos si corresponde agregarlo)
-                    firsts = set(firsts_por_nt[simbolo])
-                    firsts_por_regla[antecedente].append((tuple(consecuente), firsts - {'lambda'}))
-                    
-                    # Si 'lambda' está en FIRSTS, seguimos revisando el siguiente símbolo
+                    firsts.update(firsts_por_nt[simbolo] - {'lambda'})
                     # Regla 3: Si todo A puede no venir, los firsts de B están incluidos en los firsts de S.
-                    if 'lambda' in firsts:
-                        # Si ya llegamos al último símbolo, permitimos agregar 'lambda'
-                        # Regla 4: Si existe la posibilidad de que todos los caminos deriven en lambda, entonces lambda está en los firsts
-                        if simbolo == consecuente[-1]:
-                            firsts_por_regla[antecedente].append((tuple(consecuente), {'lambda'}))
-                        # TODO: ver si este else no está al pedo
-                        else:
-                            continue
-                    else:
+                    # En este caso, si lambda está en los firsts del NT, no cortamos y seguimos con más simbolos
+                    if 'lambda' not in firsts_por_nt[simbolo]:
                         break
-                # Solo agregamos lambda si es el único símbolo
-                elif es_lambda(simbolo) and len(consecuente) == 1:
-                    firsts_por_regla[antecedente].append((tuple(consecuente), {'lambda'}))
-                    break
+                else:
+                    # Regla 4: Si existe la posibilidad de que todos los caminos deriven en lambda, entonces lambda está en los firsts
+                    firsts.add('lambda')
+            firsts_por_regla[antecedente].append((tuple(consecuente), firsts))
     
     return firsts_por_regla, firsts_por_nt
 

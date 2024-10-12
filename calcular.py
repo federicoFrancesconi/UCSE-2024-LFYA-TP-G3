@@ -1,32 +1,29 @@
 from collections import defaultdict
 
 def generar_producciones(gramatica):
-        reglas = gramatica.strip().split('\n')
-        producciones = defaultdict(list)
-        for regla in reglas:
-            antecedente, consecuente = regla.strip().split(':')
-            antecedente = antecedente.strip()
-            consecuente = tuple(consecuente.strip().split())
-            producciones[antecedente].append(consecuente)
-        return producciones
-    
-def generar_first_para_no_terminal(no_terminal, gramatica_procesada, firsts_por_nt): #Lo que hace esta funcion es calcular recursivamente los firsts para cada no terminal
-    if no_terminal in firsts_por_nt and firsts_por_nt[no_terminal]: #Primero verifico que los first no esten calculados, si lo estan lo devuelvo
+    reglas = gramatica.strip().split('\n')
+    producciones = defaultdict(list)
+    for regla in reglas:
+        antecedente, consecuente = regla.strip().split(':')
+        antecedente = antecedente.strip()
+        consecuente = tuple(consecuente.strip().split())
+        producciones[antecedente].append(consecuente)
+    return producciones
+
+def generar_first_para_no_terminal(no_terminal, gramatica_procesada, firsts_por_nt):
+    if no_terminal in firsts_por_nt and firsts_por_nt[no_terminal]:
         return firsts_por_nt[no_terminal]
     
-    firsts_por_nt[no_terminal] = set()  #Creamos un SET para agregar los no terminales (Y no tener que verificar que esten repetidos)
+    firsts_por_nt[no_terminal] = set()
     
-    # Recorremos las reglas del no terminal
     for consecuente in gramatica_procesada[no_terminal]:
         for value in consecuente:
-            if value.islower() and value != 'lambda':  # Es un terminal
+            if value.islower() and value != 'lambda':
                 firsts_por_nt[no_terminal].add(value)
                 break
-            elif value.isupper():  # Es un no terminal
-                first_value_nt = generar_first_para_no_terminal(value, gramatica_procesada, firsts_por_nt) #Vamos a generar recursivamente los first para los no terminales.
+            elif value.isupper():
+                first_value_nt = generar_first_para_no_terminal(value, gramatica_procesada, firsts_por_nt)
                 firsts_por_nt[no_terminal].update(first_value_nt)
-                
-                # Si el FIRST del no terminal contiene lambda, seguimos buscando
                 if 'lambda' not in first_value_nt:
                     break
             elif value == 'lambda':
@@ -56,82 +53,83 @@ def generar_firsts_por_regla(gramatica_procesada):
 
     for antecedente in gramatica_procesada:
         for consecuente in gramatica_procesada[antecedente]:
+            firsts = set()
             for value in consecuente:
                 if value.islower() and value != 'lambda':
-                    firsts_por_regla[antecedente].append((tuple(consecuente), {value}))
+                    firsts.add(value)
                     break
                 elif value.isupper():
-                    firsts = set(firsts_por_nt[value])
-                    
-                    # Agregar FIRSTS de ese no terminal, quitando 'lambda'
-                    firsts_por_regla[antecedente].append((tuple(consecuente), firsts - {'lambda'}))
-                    
-                    # Si 'lambda' está en FIRSTS, seguimos revisando el siguiente símbolo
-                    if 'lambda' in firsts:
-                        if value == consecuente[-1]:  # Si es el último símbolo, permitimos agregar 'lambda'
-                            firsts_por_regla[antecedente].append((tuple(consecuente), {'lambda'}))
-                        else:
-                            continue
-                    else:
+                    firsts.update(firsts_por_nt[value] - {'lambda'})
+                    if 'lambda' not in firsts_por_nt[value]:
                         break
-                elif value == 'lambda' and len(consecuente) == 1:  # Solo agregamos lambda si es el único símbolo
-                    firsts_por_regla[antecedente].append((tuple(consecuente), {'lambda'}))
-                    break
+            else:
+                firsts.add('lambda')
+            firsts_por_regla[antecedente].append((tuple(consecuente), firsts))
     
     return firsts_por_regla, firsts_por_nt
 
-
-#Ahora vamos a calcular los follow yey
 def generar_follows(gramatica_procesada, firsts_por_nt):
-
     follows = defaultdict(set)
-    cambios = True #Con una iteracion no basta para sacar los follow, por lo que hacemos un while que va a tomar cambios en los follow
+    cambios = True
+    follows[next(iter(gramatica_procesada))].add('$')  # Símbolo de fin de entrada en el símbolo inicial
+
     while cambios:
         cambios = False
         for antecedente in gramatica_procesada:
             for consecuente in gramatica_procesada[antecedente]:
                 for indice,caracter in enumerate(consecuente):
-                    if caracter.isupper(): #Es un no terminal y podemos sacar algun follow de el :P
-                        if indice + 1 < len(consecuente): #Si no esta al final de la cadena
+                    if caracter.isupper():
+                        if indice + 1 < len(consecuente):
                             siguiente = consecuente[indice+1]
-                            if siguiente.islower():  # El siguiente es un terminal
-                                if siguiente not in follows[caracter]:  #Si no lo añadi anteriormente, lo añado y marco cambios en True
-                                    follows[caracter].add(siguiente)  
+                            if siguiente.islower():
+                                if siguiente not in follows[caracter]:
+                                    follows[caracter].add(siguiente)
                                     cambios = True
-
-                            elif siguiente.isupper(): #Si un no terminal esta seguido de otro no terminal, agregamos sus firsts :v
-                                first_siguiente = firsts_por_nt[siguiente] - {'lambda'} #Saco lambda de los firsts, por las dudas je
-                                if not first_siguiente.issubset(follows[caracter]): #Aca pregunto si los first del siguiente ya estan contenidos en los follow (En caso de ya estar presentes no entro al if)
-                                    follows[caracter].update(first_siguiente) #Si faltan elementos de los first del elemento siguiente, los agrego al set (se usa .update cuando se añaden varios elementos a un set).
+                            elif siguiente.isupper():
+                                first_siguiente = firsts_por_nt[siguiente] - {'lambda'}
+                                if not first_siguiente.issubset(follows[caracter]):
+                                    follows[caracter].update(first_siguiente)
                                     cambios = True
                                 if 'lambda' in firsts_por_nt[siguiente]:
-                                    if not follows[antecedente].issubset(follows[caracter]):  #Hago la misma validacion que antes
-                                        follows[caracter].update(follows[antecedente])  #Si los follows ya estan en el subconjunto no se agregan, de lo contrario si
+                                    if not follows[antecedente].issubset(follows[caracter]):
+                                        follows[caracter].update(follows[antecedente])
                                         cambios = True
-
-
-
-                        else: #Osea, si es el utlimo en la cadena
-                            if not follows[antecedente].issubset(follows[caracter]):  
-                                follows[caracter].update(follows[antecedente])  
+                        else:
+                            if not follows[antecedente].issubset(follows[caracter]):
+                                follows[caracter].update(follows[antecedente])
                                 cambios = True
-
     return follows
+
+def generar_select(gramatica_procesada, firsts_por_regla, follows_por_nt):
+    select = defaultdict(list)
+
+    for antecedente in gramatica_procesada:
+        for consecuente, first_consecuente in firsts_por_regla[antecedente]:
+            select_regla = set(first_consecuente)  # Comienza con el conjunto de firsts
+            select_regla.discard('lambda')  # Asegurarse de que lambda NO esté en el select
+            
+            if 'lambda' in first_consecuente:
+                select_regla.update(follows_por_nt[antecedente])  # Agrega los follows si lambda está en los firsts
+            
+            select[antecedente].append((consecuente, select_regla))
+    
+    return select
+
 
 if __name__ == "__main__":
     gramaticaejemplo = "A : b A \n A : a \n A : A B c \n A : lambda \n B : b"
     
-    # Generamos las producciones a partir de la gramática
     producciones = generar_producciones(gramaticaejemplo)
     
-    # Calculamos FIRSTs por regla y FIRSTs por no terminal
     firsts_por_regla, firsts_por_nt = generar_firsts_por_regla(producciones)
     
-    # Calculamos FOLLOWs por no terminal
-    follows = generar_follows(producciones, firsts_por_nt)
+    follows_por_nt = generar_follows(producciones, firsts_por_nt)
+    
+    select = generar_select(producciones, firsts_por_regla, follows_por_nt)
 
-    # Imprimimos los resultados en el formato solicitado
-    for antecedente, reglas in firsts_por_regla.items():
-        for regla, firsts in reglas:
-            follow_nt = follows[antecedente]
-            print(f"{antecedente} : {' '.join(regla)} {{{', '.join(firsts)}}} {{{', '.join(follow_nt)}}}")
+    for antecedente in producciones:
+        for (consecuente, first_consecuente) in firsts_por_regla[antecedente]:
+            follow_antecedente = follows_por_nt[antecedente]
+            select_consecuente = [regla for regla, select_regla in select[antecedente] if regla == consecuente][0]
+            select_regla = [select_regla for regla, select_regla in select[antecedente] if regla == consecuente][0]
+            print(f"{antecedente} : {' '.join(consecuente)} {{ {', '.join(first_consecuente)} }} {{ {', '.join(follow_antecedente)} }} {{ {', '.join(select_regla)} }}")

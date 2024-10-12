@@ -88,7 +88,6 @@ def generar_firsts(gramatica_procesada):
             firsts = set()
             for simbolo in consecuente:
                 if es_terminal(simbolo):
-                    # TODO: por qué usa corchetes para simbolo?
                     # Regla 1: Si tengo una regla que deriva en un único terminal, ese terminal está en el conjunto de los firsts
                     # Regla 2.a: Si tengo una regla donde hay un terminal seguido de algo, ese terminal esta en el conjunto de los firsts
                     firsts.add(simbolo)
@@ -111,9 +110,9 @@ def generar_firsts(gramatica_procesada):
 def generar_follows(gramatica_procesada, firsts_por_nt):
     follows = defaultdict(set)
 
-    # TODO: modificar esto porque es rarisimo
     # Regla 1: El distinguido siempre tiene como follows al menos a '$'
-    follows[next(iter(gramatica_procesada))].add('$')
+    distinguido = list(gramatica_procesada.keys())[0]
+    follows[distinguido].add('$')
 
     # La generación de los Follows termina cuando ya no hay cambios en iteraciones sucesivas
     cambios = True
@@ -168,6 +167,7 @@ def generar_select(gramatica_procesada, firsts, follows):
             select_por_regla = set(firsts_consecuente)
             # Si tenes lambda, te llevas tus Follows en lugar de lambda
             if 'lambda' in firsts_consecuente:
+                select_por_regla.discard('lambda')
                 select_por_regla.update(follows[antecedente])
             select[antecedente].append((consecuente, select_por_regla))
     return select

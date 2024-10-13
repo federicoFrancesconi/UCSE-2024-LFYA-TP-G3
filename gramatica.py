@@ -121,45 +121,53 @@ def generar_follows(gramatica_procesada, firsts_por_nt):
     cambios = True
     while cambios:
         cambios = False
+        # Recorremos todos los consecuentes buscando apariciones de NTs
         for antecedente in gramatica_procesada:
             for consecuente in gramatica_procesada[antecedente]:
-                for indice, simbolo in enumerate(consecuente):
+                for indice_inicial, simbolo in enumerate(consecuente):
                     # Solo si es un NT aporta a la generación de los Follows
                     if es_no_terminal(simbolo):
-                        # Si no es el último símbolo del consecuente (es decir: tiene algo a la derecha)
-                        if indice + 1 < len(consecuente):
-                            siguiente = consecuente[indice + 1]
-                            if es_terminal(siguiente):
-                                # Si no lo añadi anteriormente, lo añado y aviso del cambio
-                                if siguiente not in follows[simbolo]:
-                                    follows[simbolo].add(siguiente)
-                                    cambios = True
+                        # Mientras siga habiendo lambda en los Follows, seguimos buscando
+                        hay_lambda = True
+                        indice_siguiente = indice_inicial
+                        while hay_lambda:
+                            # Si no es el último símbolo del consecuente (tiene algo a la derecha)
+                            if indice_siguiente + 1 < len(consecuente):
+                                indice_siguiente += 1
+                                siguiente = consecuente[indice_siguiente]
+                                if es_terminal(siguiente):
+                                    # Si no lo añadi anteriormente, lo añado y aviso del cambio
+                                    if siguiente not in follows[simbolo]:
+                                        follows[simbolo].add(siguiente)
+                                        cambios = True
+                                    hay_lambda = False
 
-                            elif es_no_terminal(siguiente):
-                                # Regla 2: Si un NT esta seguido de otro NT, los Firsts del último (menos lambda),
-                                # pertenecen a los Follows del primero
-                                firsts_siguiente = firsts_por_nt[siguiente]
-                                firsts_siguiente_sin_lambda = firsts_siguiente - {'lambda'}
+                                elif es_no_terminal(siguiente):
+                                    # Regla 2: Si un NT esta seguido de otro NT, los Firsts del segundo (menos lambda),
+                                    # pertenecen a los Follows del primero
+                                    firsts_siguiente = firsts_por_nt[siguiente]
+                                    firsts_siguiente_sin_lambda = firsts_siguiente - {'lambda'}
 
-                                # Solo agrego dichos Firsts si no los agregué aún
-                                if not firsts_siguiente_sin_lambda.issubset(follows[simbolo]):
-                                    follows[simbolo].update(firsts_siguiente_sin_lambda)
-                                    cambios = True
-
-                                # TODO: pero que pasa si despues del NT que estoy consultando tengo otro NT, no lo contempla
-                                if 'lambda' in firsts_siguiente:
-                                    # Regla 3: Si llegaste hasta el final y seguís con lambda, podes tomar como follows los follows de tu superior
-                                    if not follows[antecedente].issubset(follows[simbolo]):
-                                        follows[simbolo].update(follows[antecedente])
+                                    # Solo agrego dichos Firsts si no los agregué aún
+                                    if not firsts_siguiente_sin_lambda.issubset(follows[simbolo]):
+                                        follows[simbolo].update(firsts_siguiente_sin_lambda)
                                         cambios = True
 
-                        # Si no tiene nada a la derecha
-                        else:
-                            # Regla 3: Si llegaste hasta el final y seguís con lambda, podes tomar como follows los follows de tu superior
-                            if not follows[antecedente].issubset(follows[simbolo]):
-                                follows[simbolo].update(follows[antecedente])
-                                cambios = True
-    return follows
+                                    hay_lambda = 'lambda' in firsts_siguiente
+                            # Si no tiene nada a la derecha
+                            else:
+                                # Regla 3: Si llegaste hasta el final y seguís con lambda, podes tomar como follows los follows de tu superior
+                                if not follows[antecedente].issubset(follows[simbolo]):
+                                    follows[simbolo].update(follows[antecedente])
+                                    cambios = True
+                                hay_lambda = False
+
+    # Ordenamos los Follows para que la salida sea deterministica (sino cambia con cada ejecución)
+    follows_ordenados = {}
+    for no_terminal, follows_del_nt in follows.items():
+        follows_ordenados[no_terminal] = sorted(follows_del_nt)
+
+    return follows_ordenados
 
 
 def generar_select(gramatica_procesada, firsts, follows):

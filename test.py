@@ -54,7 +54,7 @@ class TestGramatica:
             "A : d A [d] [$] [d]\nA : a [a] [$] [a]\n"),
         ("NO LL(1) con no terminales no generativos",
             "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
-            "S : P Q [a] [b, $] [a]\nS : a S b [a] [b, $] [a]\nS : P [a] [b, $] [a]\nP : a P Q [a] [b, $] [a]\nP : a [a] [b, $] [a]\nQ : Q b [lambda] [b, $] [b, $]\nQ : lambda [lambda] [b, $] [b, $]\n"),
+            "S : P Q [a] [$, b] [a]\nS : a S b [a] [$, b] [a]\nS : P [a] [$, b] [a]\nP : a P Q [a] [$, b] [a]\nP : a [a] [$, b] [a]\nQ : Q b [lambda] [$, b] [$, b]\nQ : lambda [lambda] [$, b] [$, b]\n"),
 
         ("No LL(1) con recursión a izquierda",
             "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",

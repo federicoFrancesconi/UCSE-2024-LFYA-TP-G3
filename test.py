@@ -64,6 +64,10 @@ class TestGramatica:
         ("Terminales y NO terminales con más de una letra",
             "Axiom : barb c \n Axiom : a barb \n Axiom : d B \n B : d e \n B : fuzz",
             "Axiom : barb c [barb] [$] [barb]\nAxiom : a barb [a] [$] [a]\nAxiom : d B [d] [$] [d]\nB : d e [d] [$] [d]\nB : fuzz [fuzz] [$] [fuzz]\n"),
+
+        ("NT con lambda en sus derivaciones sucesivos",
+            "S : A B C \n A : a \n B : b \n B : lambda \n C : c \n C : lambda",
+            "S : A B C [a] [$] [a]\nA : a [a] [$, b, c] [a]\nB : b [b] [$, c] [b]\nB : lambda [lambda] [$, c] [$, c]\nC : c [c] [$] [c]\nC : lambda [lambda] [$] [$]\n"),
     ))
     def test_setear(self, descripcion, gramatica_entrada, salida_esperada):
         g = Gramatica()

@@ -39,13 +39,9 @@ def generar_producciones(gramatica):
 
 # Calcula recursivamente los Firsts para cada NT
 def generar_firsts_para_no_terminal(no_terminal, gramatica_procesada, firsts_por_nt):
-    # Condicion de corte: los Firsts ya fueron calculados
+    # Condicion de corte: los Firsts del NT ya fueron calculados
     if no_terminal in firsts_por_nt and firsts_por_nt[no_terminal]:
         return firsts_por_nt[no_terminal]
-
-    # Eliminamos duplicados metiendo los Firsts del NT en un set
-    # TODO: ver si esto es necesario
-    firsts_por_nt[no_terminal] = set()
 
     # Recorremos las reglas del NT
     for consecuente in gramatica_procesada[no_terminal]:
@@ -73,7 +69,6 @@ def generar_firsts(gramatica_procesada):
     firsts_por_regla = defaultdict(list)
 
     # Generamos los Firsts por NT
-    # TODO: sacar esta parte y que se encargue generar_firsts_por_no_terminal
     for antecedente in gramatica_procesada:
         for consecuente in gramatica_procesada[antecedente]:
             for simbolo in consecuente:

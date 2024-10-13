@@ -200,7 +200,6 @@ class Gramatica:
 
         self.firsts, firsts_por_nt = generar_firsts(self.producciones)
 
-        # TODO: si no tengo lambda en ningun first, no tiene sentido que calcule los follows
         self.follows = generar_follows(self.producciones, firsts_por_nt)
 
         self.select = generar_select(self.producciones, self.firsts, self.follows)
@@ -216,6 +215,9 @@ class Gramatica:
 
     # Devuelve true en caso de que la cadena se derive de la gramática y false en caso contrario. 
     def evaluar_cadena(self, cadena):
+        # Para poder tomar terminales que involucren múltiples caracteres, tenemos que pasarlos con espacio (' ') entre ellos
+        cadena = cadena.split()
+
         # Si la gramática no es LL1, no puedo evaluar la cadena
         if self.esLL1 is False:
             return None
@@ -237,7 +239,11 @@ class Gramatica:
         while stack:
             s = stack.pop()
             if s in no_terminales:
-                l = tabla[(s, look)]
+                l = tabla.get((s, look))
+                # Si no se esperaba el símbolo de la entrada, la cadena no pertenece a la gramática
+                if l is None:
+                    print(f"Error: no se esperaba {look} a la entrada")
+                    return False
                 l = l[::-1]
                 stack.extend(l)
             elif s == look:

@@ -1,6 +1,7 @@
 import pytest
 from gramatica import Gramatica
 
+# ---- Tests requeridos por la cátedra: ----
 # Una gramática LL(1) sin recursión a derecha
 # Una gramática LL(1) con recursión a derecha
 # Una gramática LL(1) que incluya lambda en sus derivaciones
@@ -11,7 +12,6 @@ from gramatica import Gramatica
 # Por cada uno de los incisos previos, una gramática que no sea LL(1).
 # Una gramática no LL(1) con recursión a izquierda
 
-# TODO: faltaría representar el atributo esLL1 en salida_esperada
 class TestGramatica:
     @pytest.mark.parametrize("descripcion, gramatica_entrada, salida_esperada", (
         ("LL(1) sin recursión a derecha y sin lambda",
@@ -75,7 +75,6 @@ class TestGramatica:
         assert g.__str__() == salida_esperada, f"Error al setear gramática: {descripcion}"
     
 
-    # Comentamos los tests de gramáticas NO LL(1) porque no debería poder evaluarse ninguna cadena en esos casos
     @pytest.mark.parametrize("descripcion, gramatica_entrada, cadena, pertenece", (
         ("LL(1) sin recursión a derecha y sin lambda",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f",
@@ -86,15 +85,6 @@ class TestGramatica:
             "d d f $",
             False),
 
-        # ("NO LL(1) sin recursión a derecha y sin lambda",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f",
-        #     "bc",
-        #     True),
-        # ("NO LL(1) sin recursión a derecha y sin lambda",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f",
-        #     "cadena",
-        #     False),
-
         ("LL(1) con recursión a derecha", 
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : j B",
             "d j j j d e $",
@@ -103,15 +93,6 @@ class TestGramatica:
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : j B",
             "d j j j d f $",
             False),
-
-        # ("NO LL(1) con recursión a derecha",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : j B",
-        #     "cadena",
-        #     True),
-        # ("NO LL(1) con recursión a derecha",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : j B",
-        #     "cadena",
-        #     False),
 
         ("LL(1) con lambda en sus derivaciones",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : lambda",
@@ -122,15 +103,6 @@ class TestGramatica:
             "d e $",
             False),
 
-        # ("NO LL(1) con lambda en sus derivaciones",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : lambda",
-        #     "cadena",
-        #     True),
-        # ("NO LL(1) con lambda en sus derivaciones",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : lambda",
-        #     "cadena",
-        #     False),
-
         ("LL(1) con reglas innecesarias",
             "A : b c \n A : a b \n A : d B \n A : A \n B : d e \n B : f",
             "d d e $",
@@ -139,15 +111,6 @@ class TestGramatica:
             "A : b c \n A : a b \n A : d B \n A : A \n B : d e \n B : f",
             "d d f $",
             False),
-
-        # ("NO LL(1) con reglas innecesarias",
-        #     "A : b c \n A : a b \n A : d B \n A : A \n A : a \n B : d e \n B : f",
-        #     "cadena",
-        #     True),
-        # ("NO LL(1) con reglas innecesarias",
-        #     "A : b c \n A : a b \n A : d B \n A : A \n A : a \n B : d e \n B : f",
-        #     "cadena",
-        #     False),
 
         ("LL(1) con símbolos inaccesibles desde el axioma",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n C : j k",
@@ -158,15 +121,6 @@ class TestGramatica:
             "b e $",
             False),
 
-        # ("NO LL(1) con símbolos inaccesibles desde el axioma",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n C : j k",
-        #     "cadena",
-        #     True),
-        # ("NO LL(1) con símbolos inaccesibles desde el axioma",
-        #     "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n C : j k",
-        #     "cadena",
-        #     False),
-
         ("LL(1) con no terminales no generativos",
             "A : d A \n A : b B \n A : a \n B : b B",    
             "d d d d d d d d a $",
@@ -175,24 +129,6 @@ class TestGramatica:
             "A : d A \n A : b B \n A : a \n B : b B",    
             "a d $",
             False),
-
-        # ("NO LL(1) con no terminales no generativos",
-        #     "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
-        #     "cadena",
-        #     True),
-        # ("NO LL(1) con no terminales no generativos",
-        #     "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
-        #     "cadena",
-        #     False),
-
-        # ("No LL(1) con recursión a izquierda",
-        #     "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
-        #     "cadena",
-        #     True),
-        # ("No LL(1) con recursión a izquierda",
-        #     "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
-        #     "cadena",
-        #     False),
 
         ("Terminales y NO terminales con más de una letra",
             "Axiom : barb c \n Axiom : a barb \n Axiom : d B \n B : d e \n B : fuzz",
@@ -203,7 +139,78 @@ class TestGramatica:
             "barb d $",
             False),
     ))
-    def test_evaluar_cadena(self, descripcion, gramatica_entrada, cadena, pertenece):
+    def test_evaluar_cadena_ll1(self, descripcion, gramatica_entrada, cadena, pertenece):
+        g = Gramatica()
+        g.setear(gramatica_entrada)
+        result = g.evaluar_cadena(cadena)
+        assert result == pertenece, f"Error al evaluar cadena {cadena} con gramática {descripcion}"
+
+
+    @pytest.mark.parametrize("descripcion, gramatica_entrada, cadena, pertenece", (
+        ("NO LL(1) sin recursión a derecha y sin lambda",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f",
+            "bc",
+            None),
+        ("NO LL(1) sin recursión a derecha y sin lambda",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f",
+            "cadena",
+            None),
+
+        ("NO LL(1) con recursión a derecha",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : j B",
+            "cadena",
+            None),
+        ("NO LL(1) con recursión a derecha",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : j B",
+            "cadena",
+            None),
+
+        ("NO LL(1) con lambda en sus derivaciones",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : lambda",
+            "cadena",
+            None),
+        ("NO LL(1) con lambda en sus derivaciones",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n B : lambda",
+            "cadena",
+            None),
+
+        ("NO LL(1) con reglas innecesarias",
+            "A : b c \n A : a b \n A : d B \n A : A \n A : a \n B : d e \n B : f",
+            "cadena",
+            None),
+        ("NO LL(1) con reglas innecesarias",
+            "A : b c \n A : a b \n A : d B \n A : A \n A : a \n B : d e \n B : f",
+            "cadena",
+            None),
+
+        ("NO LL(1) con símbolos inaccesibles desde el axioma",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n C : j k",
+            "cadena",
+            None),
+        ("NO LL(1) con símbolos inaccesibles desde el axioma",
+            "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n C : j k",
+            "cadena",
+            None),
+
+        ("NO LL(1) con no terminales no generativos",
+            "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
+            "cadena",
+            None),
+        ("NO LL(1) con no terminales no generativos",
+            "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
+            "cadena",
+            None),
+
+        ("No LL(1) con recursión a izquierda",
+            "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
+            "cadena",
+            None),
+        ("No LL(1) con recursión a izquierda",
+            "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
+            "cadena",
+            None),
+    ))
+    def test_evaluar_cadena_no_ll1(self, descripcion, gramatica_entrada, cadena, pertenece):
         g = Gramatica()
         g.setear(gramatica_entrada)
         result = g.evaluar_cadena(cadena)

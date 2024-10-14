@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 
+import string
 
 # Usamos defaultdict para:
 # * Generar keys automáticamente si agregamos y aún no están en el diccionario
@@ -11,9 +12,11 @@ from collections import defaultdict
 def es_no_terminal(simbolo):
     return simbolo[0].isupper()
 
+def es_simbolo(caracter):
+    return caracter in string.punctuation
 
 def es_terminal(simbolo):
-    return simbolo.islower() and simbolo != 'lambda'
+    return ((simbolo.islower() and simbolo != 'lambda') or es_simbolo(simbolo))
 
 
 def es_lambda(simbolo):

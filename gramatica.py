@@ -3,19 +3,14 @@
 
 from collections import defaultdict
 
-
 # Usamos defaultdict para:
 # * Generar keys automáticamente si agregamos y aún no están en el diccionario
 # * Poder tratar un diccionario como si fuese otra estructura de datos (list o set)
 
 def es_no_terminal(simbolo):
     return simbolo[0].isupper()
-
-
 def es_terminal(simbolo):
     return simbolo.islower() and simbolo != 'lambda'
-
-
 def es_lambda(simbolo):
     return simbolo == 'lambda'
 
@@ -33,6 +28,18 @@ def generar_producciones(gramatica):
 
         # Aprovechamos defaultdict y trabajamos un diccionario como una lista
         producciones[antecedente].append(consecuente)
+
+    producciones_limpias = limpiar_producciones(producciones)
+    return producciones_limpias
+
+
+def limpiar_producciones(producciones):
+    # Regla 1: Eliminar producciones innecesarias
+    for antecedente in list(producciones.keys()):
+        for consecuente in list(producciones[antecedente]):
+            if len(consecuente) == 1 and antecedente == consecuente[0]:
+                producciones[antecedente].remove(consecuente)
+
 
     return producciones
 
@@ -62,8 +69,6 @@ def generar_firsts_para_no_terminal(no_terminal, gramatica_procesada, firsts_por
                 break
 
     return firsts_por_nt[no_terminal]
-
-
 def generar_firsts(gramatica_procesada):
     firsts_por_nt = defaultdict(set)
     firsts_por_regla = defaultdict(list)
@@ -108,8 +113,6 @@ def generar_firsts(gramatica_procesada):
             firsts_por_regla[antecedente].append((tuple(consecuente), firsts))
 
     return firsts_por_regla, firsts_por_nt
-
-
 def generar_follows(gramatica_procesada, firsts_por_nt):
     follows = defaultdict(set)
 
@@ -168,8 +171,6 @@ def generar_follows(gramatica_procesada, firsts_por_nt):
         follows_ordenados[no_terminal] = sorted(follows_del_nt)
 
     return follows_ordenados
-
-
 def generar_select(gramatica_procesada, firsts, follows):
     # La estructura va a ser un defaultdict {A: [(consecuente, select), (consecuente, select)]}
     select = defaultdict(list)
@@ -183,7 +184,6 @@ def generar_select(gramatica_procesada, firsts, follows):
                 select_por_regla.update(follows[antecedente])
             select[antecedente].append((consecuente, select_por_regla))
     return select
-
 
 class Gramatica:
     esLL1 = True
@@ -203,8 +203,8 @@ class Gramatica:
         self.follows = generar_follows(self.producciones, firsts_por_nt)
 
         self.select = generar_select(self.producciones, self.firsts, self.follows)
+
         # Chequear si es gramatica ambigua:
-        # Si para dos o más producciones con el mismo antecedente, hay un simbolo repetido en el conjunto de los select, es una gramatica ambigua.
         for antecedente in self.select:
             select_simbolos = set()
             for (consecuente, selects_produccion) in self.select[antecedente]:
@@ -221,7 +221,7 @@ class Gramatica:
         # Si la gramática no es LL1, no puedo evaluar la cadena
         if self.esLL1 is False:
             return None
-        
+
         # Genero una tabla donde los terminales sean las columnas y los no terminales las filas
         tabla = {}
         for antecedente in self.producciones:
@@ -265,6 +265,6 @@ class Gramatica:
             for (consecuente, firsts_regla) in self.firsts[antecedente]:
                 follows = self.follows[antecedente]
                 # Tenemos que filtrar por el primer select encontrado porque la busqueda nos arroja una lista
-                select_regla = [select_regla for regla, select_regla in self.select[antecedente] if regla == consecuente][0]
+                select_regla =[select_regla for regla, select_regla in self.select[antecedente] if regla == consecuente][0]
                 resultado = resultado + f"{antecedente} : {' '.join(consecuente)} [{', '.join(firsts_regla)}] [{', '.join(follows)}] [{', '.join(select_regla)}]\n"
         return resultado

@@ -200,7 +200,6 @@ class TestGramatica:
             "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
             "cadena",
             None),
-
         ("No LL(1) con recursión a izquierda",
             "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
             "cadena",

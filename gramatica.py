@@ -86,7 +86,7 @@ def limpiar_producciones(producciones):
             del producciones[antecedente]
         else:
             producciones[antecedente] = [consecuente for consecuente in producciones[antecedente] if all(
-                simbolo in no_terminales_generativos or es_terminal(simbolo) for simbolo in consecuente)]
+                simbolo in no_terminales_generativos or es_terminal(simbolo) or es_lambda(simbolo) for simbolo in consecuente)]
 
     return producciones
 

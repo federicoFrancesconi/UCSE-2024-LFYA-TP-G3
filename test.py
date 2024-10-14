@@ -37,10 +37,10 @@ class TestGramatica:
 
         ("LL(1) con reglas innecesarias",
             "A : b c \n A : a b \n A : d B \n A : A \n B : d e \n B : f",
-            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]"),
+            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),
         ("NO LL(1) con reglas innecesarias",
             "A : b c \n A : a b \n A : d B \n A : A \n A : a \n B : d e \n B : f",
-            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nA : [a] [$] [a]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),
+            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nA : a [a] [$] [a]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),
 
         ("LL(1) con símbolos inaccesibles desde el axioma",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n C : j k",

@@ -3,14 +3,19 @@
 
 from collections import defaultdict
 
+
 # Usamos defaultdict para:
 # * Generar keys automáticamente si agregamos y aún no están en el diccionario
 # * Poder tratar un diccionario como si fuese otra estructura de datos (list o set)
 
 def es_no_terminal(simbolo):
     return simbolo[0].isupper()
+
+
 def es_terminal(simbolo):
     return simbolo.islower() and simbolo != 'lambda'
+
+
 def es_lambda(simbolo):
     return simbolo == 'lambda'
 
@@ -40,6 +45,48 @@ def limpiar_producciones(producciones):
             if len(consecuente) == 1 and antecedente == consecuente[0]:
                 producciones[antecedente].remove(consecuente)
 
+    # Regla 2: Eliminar símbolos inaccesibles
+    simbolos_accesibles = set()
+    axioma = list(producciones.keys())[0]
+    simbolos_accesibles.add(axioma)
+
+    cambios = True
+    while cambios:
+        cambios = False
+        for antecedente in list(producciones.keys()):
+            if antecedente in simbolos_accesibles:
+                for consecuente in producciones[antecedente]:
+                    for simbolo in consecuente:
+                        if simbolo not in simbolos_accesibles:
+                            simbolos_accesibles.add(simbolo)
+                            cambios = True
+
+    for antecedente in list(producciones.keys()):
+        if antecedente not in simbolos_accesibles:
+            del producciones[antecedente]
+        else:
+            producciones[antecedente] = [consecuente for consecuente in producciones[antecedente] if
+                                         all(simbolo in simbolos_accesibles for simbolo in consecuente)]
+
+    # Regla 3: Eliminar no terminales no generativos
+    no_terminales_generativos = set()
+
+    cambios = True
+    while cambios:
+        cambios = False
+        for antecedente in list(producciones.keys()):
+            for consecuente in producciones[antecedente]:
+                if all(simbolo in no_terminales_generativos or es_terminal(simbolo) for simbolo in consecuente):
+                    if antecedente not in no_terminales_generativos:
+                        no_terminales_generativos.add(antecedente)
+                        cambios = True
+
+    for antecedente in list(producciones.keys()):
+        if antecedente not in no_terminales_generativos:
+            del producciones[antecedente]
+        else:
+            producciones[antecedente] = [consecuente for consecuente in producciones[antecedente] if all(
+                simbolo in no_terminales_generativos or es_terminal(simbolo) for simbolo in consecuente)]
 
     return producciones
 
@@ -69,6 +116,8 @@ def generar_firsts_para_no_terminal(no_terminal, gramatica_procesada, firsts_por
                 break
 
     return firsts_por_nt[no_terminal]
+
+
 def generar_firsts(gramatica_procesada):
     firsts_por_nt = defaultdict(set)
     firsts_por_regla = defaultdict(list)
@@ -113,6 +162,8 @@ def generar_firsts(gramatica_procesada):
             firsts_por_regla[antecedente].append((tuple(consecuente), firsts))
 
     return firsts_por_regla, firsts_por_nt
+
+
 def generar_follows(gramatica_procesada, firsts_por_nt):
     follows = defaultdict(set)
 
@@ -171,6 +222,8 @@ def generar_follows(gramatica_procesada, firsts_por_nt):
         follows_ordenados[no_terminal] = sorted(follows_del_nt)
 
     return follows_ordenados
+
+
 def generar_select(gramatica_procesada, firsts, follows):
     # La estructura va a ser un defaultdict {A: [(consecuente, select), (consecuente, select)]}
     select = defaultdict(list)
@@ -184,6 +237,7 @@ def generar_select(gramatica_procesada, firsts, follows):
                 select_por_regla.update(follows[antecedente])
             select[antecedente].append((consecuente, select_por_regla))
     return select
+
 
 class Gramatica:
     esLL1 = True
@@ -265,6 +319,6 @@ class Gramatica:
             for (consecuente, firsts_regla) in self.firsts[antecedente]:
                 follows = self.follows[antecedente]
                 # Tenemos que filtrar por el primer select encontrado porque la busqueda nos arroja una lista
-                select_regla =[select_regla for regla, select_regla in self.select[antecedente] if regla == consecuente][0]
+                select_regla = [select_regla for regla, select_regla in self.select[antecedente] if regla == consecuente][0]
                 resultado = resultado + f"{antecedente} : {' '.join(consecuente)} [{', '.join(firsts_regla)}] [{', '.join(follows)}] [{', '.join(select_regla)}]\n"
         return resultado

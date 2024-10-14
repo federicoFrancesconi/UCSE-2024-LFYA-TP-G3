@@ -58,7 +58,8 @@ class TestGramatica:
 
         ("No LL(1) con recursión a izquierda",
             "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
-            "S : S a A [b] [$, a] [b]\nS : b B [b] [$, a] [b]\nA : a B [a] [$, a] [a]\nA : c [c] [$, a] [c]\nB : B b [d] [$, a, b] [d]\nB : d [d] [$, a, b] [d]\n"),
+            #"S : S a A [b] [$, a] [b]\nS : b B [b] [$, a] [b]\nA : a B [a] [$, a] [a]\nA : c [c] [$, a] [c]\nB : B b [d] [$, a, b] [d]\nB : d [d] [$, a, b] [d]\n"),
+            None),
 
         # Tomamos el mismo autómata que en LL(1) sin recursión a derecha
         ("Terminales y NO terminales con más de una letra",

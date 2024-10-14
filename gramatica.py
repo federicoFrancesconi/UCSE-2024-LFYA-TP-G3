@@ -20,6 +20,10 @@ def es_lambda(simbolo):
     return simbolo == 'lambda'
 
 
+def es_terminal(simbolo):
+    return not es_no_terminal(simbolo) and not es_lambda(simbolo)
+
+
 # Recibe una gramática y genera un diccionario de la forma {antecedente:[(consecuente),(consecuente)],}
 def generar_producciones(gramatica):
     reglas = gramatica.strip().split('\n')

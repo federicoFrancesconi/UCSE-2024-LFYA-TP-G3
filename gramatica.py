@@ -239,8 +239,17 @@ def generar_select(gramatica_procesada, firsts, follows):
     return select
 
 
+def hay_recursion_a_izquierda(gramatica):
+    for antecedente in gramatica:
+        for consecuente in gramatica[antecedente]:
+            if antecedente == consecuente[0]:
+                return True
+    return False
+
+
 class Gramatica:
     esLL1 = True
+    esResoluble = True
     producciones = defaultdict(list)
     firsts = defaultdict(list)
     follows = defaultdict(set)
@@ -251,6 +260,12 @@ class Gramatica:
     # por cada regla o producción mostrar dicha regla y a continuación los First, Follows y Selects correspondientes.
     def setear(self, gramatica):
         self.producciones = generar_producciones(gramatica)
+
+        # Chequeamos si tiene recursión a izquierda
+        if hay_recursion_a_izquierda(self.producciones):
+            self.esLL1 = False
+            self.esResoluble = False
+            return
 
         self.firsts, firsts_por_nt = generar_firsts(self.producciones)
 
@@ -314,6 +329,10 @@ class Gramatica:
 
     # Funcion para imprimir la gramatica
     def __str__(self):
+        if self.esResoluble is False:
+            print("La gramática no es resoluble por este programa")
+            return None
+
         resultado = ""
         for antecedente in self.producciones:
             for (consecuente, firsts_regla) in self.firsts[antecedente]:

@@ -235,7 +235,9 @@ def generar_select(gramatica_procesada, firsts, follows):
             if 'lambda' in firsts_consecuente:
                 select_por_regla.discard('lambda')
                 select_por_regla.update(follows[antecedente])
-            select[antecedente].append((consecuente, select_por_regla))
+            # Ordenamos los Select para que la salida sea deterministica (sino cambia con cada ejecución)
+            select[antecedente].append((consecuente, sorted(select_por_regla)))
+
     return select
 
 

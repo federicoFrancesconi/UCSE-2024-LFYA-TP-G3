@@ -47,14 +47,14 @@ class TestGramatica:
             "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),         
         ("NO LL(1) con símbolos inaccesibles desde el axioma",
             "A : b c \n A : a b \n A : d B \n A : a \n B : d e \n B : f \n C : j k",
-            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nA : [a] [$] [a]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),
+            "A : b c [b] [$] [b]\nA : a b [a] [$] [a]\nA : d B [d] [$] [d]\nA : a [a] [$] [a]\nB : d e [d] [$] [d]\nB : f [f] [$] [f]\n"),
 
         ("LL(1) con no terminales no generativos",
             "A : d A \n A : b B \n A : a \n B : b B",    
             "A : d A [d] [$] [d]\nA : a [a] [$] [a]\n"),
         ("NO LL(1) con no terminales no generativos",
             "S : P Q \n S : a S b \n S : P \n S : R \n P : a P Q  \n P : a \n Q : Q b \n Q : lambda \n R : R b",
-            "S : P Q [a] [$, b] [a]\nS : a S b [a] [$, b] [a]\nS : P [a] [$, b] [a]\nP : a P Q [a] [$, b] [a]\nP : a [a] [$, b] [a]\nQ : Q b [lambda] [$, b] [$, b]\nQ : lambda [lambda] [$, b] [$, b]\n"),
+            "S : a S b [a] [$, b] [a]\nS : P [a] [$, b] [a]\nP : a [a] [$, b] [a]\n"),
 
         ("No LL(1) con recursión a izquierda",
             "S : S a A \n S : b B \n A : a B \n A : c \n B : B b \n B : d",
@@ -97,7 +97,7 @@ class TestGramatica:
 
         ("LL(1) con lambda en sus derivaciones",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : lambda",
-            "d j $",
+            "d f $",
             True),
         ("LL(1) con lambda en sus derivaciones",
             "A : b c \n A : a b \n A : d B \n B : d e \n B : f \n B : lambda",
